@@ -42,7 +42,7 @@ with dax.Connection(
         data_source='asazure://<region name>.asazure.windows.net/<instance here>,
         initial_catalog='<my tabular database>'
         uid='app:<client id>@<tenant id>',
-        password='<client secret>
+        password='<client secret>'
     ) as conn:
     df = conn.query('EVALUATE ROW("a", 1)')
     df.to_csv("raw_data.csv", index=False)        
