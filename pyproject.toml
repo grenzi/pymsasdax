@@ -1,0 +1,50 @@
+# pyproject.toml
+
+[build-system]
+requires      = ["setuptools", ]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pymsasdax"
+version = "2023.1001"
+description = "Run DAX queries against Analysis Services and get Pandas Dataframes"
+readme = "README.md"
+authors = [{ name = "Gage Renzi", email = "gagerenzi+pypy@gmail.com" }]
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+keywords = ["dax", "MSAS", "Analysis Services", "SSAS", "PowerBI", "Power BI", "XMLA"]
+dependencies = [
+    "dateparser",
+    "pandas", 
+    "pythonnet"
+]
+requires-python = ">=3.9"
+
+[project.optional-dependencies]
+dev = ["black", "bumpver", "pip-tools"]
+
+[project.urls]
+Homepage = "https://github.com/grenzi/pymsasdax"
+
+[tool.bumpver]
+current_version = "2023.1001"
+version_pattern = "YYYY.BUILD[-TAG]"
+commit_message = "bump version {old_version} -> {new_version}"
+commit = true
+tag = true
+push = true
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+    'current_version = "{version}"',
+]
+"src/pymsasdax/__init__.py" = ["{version}"]
+"README.md" = [
+    "{version}",
+    "{pep440_version}",
+]
+
