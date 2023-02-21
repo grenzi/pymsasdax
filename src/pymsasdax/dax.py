@@ -6,12 +6,13 @@ import dateparser
 class Connection:
     def __init__(
         self,
-        tidy_column_names=True,
         conn_str=None,
         initial_catalog=None,
         data_source=None,
         uid="",
         password="",
+        tidy_column_names=True,
+        tidy_map_function=None,
         timeout=30,
     ):
         if conn_str is not None:
@@ -25,6 +26,7 @@ class Connection:
 
         self._connection = None
         self._tidy_column_names = tidy_column_names
+        self._tidy_map_function = tidy_map_function
         clr.AddReference("System.Data")
 
     def _handle_oledb_field(self, f):
@@ -45,7 +47,7 @@ class Connection:
             return f
         raise Exception("Unknown Type " + mytype)
 
-    def _tidy_col_name(self, c):
+    def _cleanup_column_name(self, c):
         newname = c.replace("[", "_").replace("]", "_").replace(" ", "_")
         return newname.strip("_")
 
@@ -87,11 +89,13 @@ class Connection:
             # rows[x] = list( [ reader[c] if reader[c].GetTypeCode() != 2 else None for c in columns] )
             rows[x] = list([self._handle_oledb_field(reader[c]) for c in columns])
         df = pd.DataFrame.from_records(
+            columns=columns,
             data=rows,
             coerce_float=True,
         )
         if self._tidy_column_names:
-            df.rename(columns={c: self._tidy_col_name(c) for c in columns})
+            map_func = self._tidy_map_function or self._cleanup_column_name
+            df.rename(columns={c: map_func(c) for c in columns}, inplace=True)
         del rows
         del reader
         return df

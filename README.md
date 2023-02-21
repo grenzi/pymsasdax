@@ -15,11 +15,13 @@ Also, this is my first module up on pypi and I'm not exactly an expert on python
 I hope you find this useful!
 
 ## Python before 3.9
-This should actually work fine with for python 3 under 3.9. I've used this code for a couple of years now without incident -- I was just lazy when building this package. I **think** you'd need backports to support [dateparser](https://pypi.org/project/dateparser/).
+
+This should actually work fine with for python 3 under 3.9. I've used this code for a couple of years now without incident -- I was just lazy when building this package. I **think** you'd need backports to support [dateparser](https://pypi.org/project/dateparser/). Feel free to path and submit a PR if you like. 
 
 # Usage examples
 
 ## Have an interactive prompt for Login to the resource
+
 ```python
 from pymsasdax import dax
 
@@ -32,6 +34,7 @@ with dax.Connection(
 ```
 
 ## Use an app id
+
 ```python
 from pymsasdax import dax
 
@@ -45,9 +48,30 @@ with dax.Connection(
     df.to_csv("raw_data.csv", index=False)        
 ```
 
+## Rename columns your way
+```python
+from pymsasdax import dax
+
+def my_column_renamer(colname):
+    return colname.lower()
+
+with dax.Connection(
+        data_source='asazure://<region name>.asazure.windows.net/<instance here>,
+        initial_catalog='<my tabular database>',
+        tidy_map_function = my_column_renamer
+    ) as conn:
+    df = conn.query('EVALUATE SUMMARIZECOLUMNS (etc....etc...etc...)')
+    print(df)
+```
+
 # Dev Notes
 
-Current Version - 2023.1001-alpha
+## Version History
+
+* 2023.1013
+  * Fix issue with column names populating from when i made initial package version
+  * Allow specificiation of column name cleanup function
+* 2023.1001 - Initial
 ## Tests
 
 Yes. There aren't any. Feel free to submit a PR. 
@@ -56,8 +80,8 @@ Yes. There aren't any. Feel free to submit a PR.
 
 This might not be right but if you ever go to update pypi - 
 ```
+bumpver update --minor --tag beta
 pip-compile pyproject.toml
-bumpver update --minor
 python -m pip install -e . 
 #test
 python -m build
