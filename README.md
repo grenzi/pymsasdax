@@ -86,7 +86,7 @@ with dax.Connection(
 
 ## Version History
 
-* 2023.1014
+* 2023.1016
   * Add at least some docstrings
   * Add Premium XMLA endpoint example
   * Add effective_user_name parameter to connection
@@ -95,6 +95,7 @@ with dax.Connection(
   * Fix issue with column names populating from when i made initial package version
   * Allow specificiation of column name cleanup function
 * 2023.1001 - Initial
+
 ## Tests
 
 Yes. There aren't any. Feel free to submit a PR. 

@@ -44,5 +44,4 @@ push = true
     'version = "{version}"',
 ]
 "src/pymsasdax/__init__.py" = ["{version}"]
-"README.md" = ["{version}"]
 
