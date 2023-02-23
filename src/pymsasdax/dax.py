@@ -4,6 +4,32 @@ import dateparser
 
 
 class Connection:
+    """A class for running DAX queries against Microsoft SQL Server Analysis Services Tabular Models, Azure Analysis Services, or Power BI XMLA endpoints
+
+    Args:
+    conn_str (str): Optional connection string for the connection.
+    initial_catalog (str): Required if conn_str is not specified. Initial Catalog of the server.
+    data_source (str): Required if conn_str is not specified. Data Source of the server.
+    uid (str): User ID for authentication. Default is empty string.
+    password (str): Password for authentication. Default is empty string.
+    effective_user_name (str): Username to impersonate, usually a UPN, such as joe@contoso.com
+    tidy_column_names (bool): Flag for tidying column names. Default is True.
+    tidy_map_function (function): A function to tidy column names. Default is to use the internal one, which leaves capitalization alone, replaces spaces with underscores, and removes square brackets.
+    timeout (int): Timeout period (in seconds) for running queries. Default is 30.
+    **kwargs: Additional keyword value pairs, will be added to the connection string. 
+
+    Raises:
+    ValueError: If initial_catalog and data_source are not specified when conn_str is not passed.
+
+    Methods:
+    _handle_oledb_field(f): Handles different data types returned from OleDbConnection query.
+    _cleanup_column_name(c): Cleans up the column name by replacing some characters with underscores.
+    __enter__(): Opens the connection when entering the context.
+    __exit__(exc_type, exc_value, traceback): Closes the connection when exiting the context.
+    query(daxcmd): Executes a DAX query on the connected server and returns the result as a Pandas DataFrame.
+
+    Returns: Nothing
+    """
     def __init__(
         self,
         conn_str=None,
@@ -11,10 +37,13 @@ class Connection:
         data_source=None,
         uid="",
         password="",
+        effective_user_name=None,
         tidy_column_names=True,
         tidy_map_function=None,
         timeout=30,
+        **kwargs
     ):
+        """Initializes the Connection object."""
         if conn_str is not None:
             self._connection_string = conn_str
         else:
@@ -23,6 +52,10 @@ class Connection:
                     f"initial_catalog and data_source must be specificed if not passing a connection string"
                 )
             self._connection_string = f"Provider=MSOLAP;Persist Security Info=True;Initial Catalog={initial_catalog};Data Source={data_source};Timeout={timeout};UID={uid};Password={password}"
+            if effective_user_name:
+                self._connection_string += f"EffectiveUserName={effective_user_name};"
+            for key, value in kwargs.items():
+                self._connection_string += f"{key}={value};"
 
         self._connection = None
         self._tidy_column_names = tidy_column_names
@@ -30,6 +63,15 @@ class Connection:
         clr.AddReference("System.Data")
 
     def _handle_oledb_field(self, f):
+        """Handles different data types returned from OleDbConnection query, converting to the appropriate python type
+        Attempts type sniffing by getting the Class of the type from .NET
+
+        Args:
+        f: A field from the query result.
+
+        Returns:
+        The field converted to the appropriate data type.
+        """
         mytype = str(type(f))
         if mytype == "<class 'System.DBNull'>":
             return None
@@ -48,11 +90,24 @@ class Connection:
         raise Exception("Unknown Type " + mytype)
 
     def _cleanup_column_name(self, c):
+        """Cleans up the column name by replacing some characters with underscores.
+
+        Args:
+        c (str): A column name.
+
+        Returns:
+        The cleaned-up column name.
+        """
         newname = c.replace("[", "_").replace("]", "_").replace(" ", "_")
         return newname.strip("_")
 
     def __enter__(self):
-        # don't be lazy - force connection if we're entering with with
+        """Opens the connection when entering the context.
+        While the class normally tries to be lazy about connecting, entering the context forces immediate connection.
+
+        Returns:
+        The Connection object.
+        """
         if self._connection is None:
             import System.Data.OleDb as ADONET
 
@@ -61,10 +116,20 @@ class Connection:
             return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self._connection.Close()
+        """Closes the connection when exiting the context."""
+        if self._connection is not None:
+            self._connection.Close()
 
     def query(self, daxcmd):
-        # lazy connection
+        """Executes a DAX query on the connected server and returns the result as a Pandas DataFrame.
+
+        Args:
+        daxcmd (str): A DAX query.
+
+        Returns:
+        A Pandas DataFrame representing the result of the query.
+        """
+        # lazy connection if not already initialized (via enter, etc)
         if self._connection is None:
             import System.Data.OleDb as ADONET
 

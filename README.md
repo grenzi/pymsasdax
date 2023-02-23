@@ -33,13 +33,31 @@ with dax.Connection(
     print(df)
 ```
 
+## Query a Power BI Premium Workspace XMLA endpoint
+
+You can also find the endpoint in your workspace settings, as shown below. You'll use the dataset name as the initial_catalog.
+
+<img src="./doc/images/xmla_endpoint.jpg" alt="Screen capture of powerbi workspace settings" style="width:70%;">
+
+
+```python
+from pymsasdax import dax
+
+with dax.Connection(
+        data_source='powerbi://api.powerbi.com/v1.0/myorg/<workspace name, spaces are fine>',
+        initial_catalog='<dataset name - spaces are fine>'
+    ) as conn:
+    df = conn.query('EVALUATE ROW("a", 1)')
+    print(df)
+```
+
 ## Use an app id
 
 ```python
 from pymsasdax import dax
 
 with dax.Connection(
-        data_source='asazure://<region name>.asazure.windows.net/<instance here>,
+        data_source='asazure://<region name>.asazure.windows.net/<instance here>',
         initial_catalog='<my tabular database>'
         uid='app:<client id>@<tenant id>',
         password='<client secret>'
@@ -56,7 +74,7 @@ def my_column_renamer(colname):
     return colname.lower()
 
 with dax.Connection(
-        data_source='asazure://<region name>.asazure.windows.net/<instance here>,
+        data_source='asazure://<region name>.asazure.windows.net/<instance here>',
         initial_catalog='<my tabular database>',
         tidy_map_function = my_column_renamer
     ) as conn:
@@ -68,6 +86,11 @@ with dax.Connection(
 
 ## Version History
 
+* 2023.1014
+  * Add at least some docstrings
+  * Add Premium XMLA endpoint example
+  * Add effective_user_name parameter to connection
+  * Pass **kwargs as additional connection string key value pairs
 * 2023.1013
   * Fix issue with column names populating from when i made initial package version
   * Allow specificiation of column name cleanup function
@@ -80,7 +103,7 @@ Yes. There aren't any. Feel free to submit a PR.
 
 This might not be right but if you ever go to update pypi - 
 ```
-bumpver update --minor --tag beta
+bumpver update --minor
 pip-compile pyproject.toml
 python -m pip install -e . 
 #test
