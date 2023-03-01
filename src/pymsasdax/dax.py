@@ -7,7 +7,6 @@ class Connection:
     """A class for running DAX queries against Microsoft SQL Server Analysis Services Tabular Models, Azure Analysis Services, or Power BI XMLA endpoints
 
     Args:
-    conn_str (str): Optional connection string for the connection.
     initial_catalog (str): Required if conn_str is not specified. Initial Catalog of the server.
     data_source (str): Required if conn_str is not specified. Data Source of the server.
     uid (str): User ID for authentication. Default is empty string.
@@ -16,6 +15,7 @@ class Connection:
     tidy_column_names (bool): Flag for tidying column names. Default is True.
     tidy_map_function (function): A function to tidy column names. Default is to use the internal one, which leaves capitalization alone, replaces spaces with underscores, and removes square brackets.
     timeout (int): Timeout period (in seconds) for running queries. Default is 30.
+    conn_str (str): Optional connection string for the connection.
     **kwargs: Additional keyword value pairs, will be added to the connection string. 
 
     Raises:
@@ -32,7 +32,6 @@ class Connection:
     """
     def __init__(
         self,
-        conn_str=None,
         initial_catalog=None,
         data_source=None,
         uid="",
@@ -41,6 +40,7 @@ class Connection:
         tidy_column_names=True,
         tidy_map_function=None,
         timeout=30,
+        conn_str=None,
         **kwargs
     ):
         """Initializes the Connection object."""
