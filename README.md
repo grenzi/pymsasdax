@@ -86,6 +86,8 @@ with dax.Connection(
 
 ## Version History
 
+* 2023.1017
+  * fix bug using effective_user_name
 * 2023.1016
   * Add at least some docstrings
   * Add Premium XMLA endpoint example
