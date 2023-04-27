@@ -1,6 +1,6 @@
 import clr
-import pandas as pd
 import dateparser
+import pandas as pd
 
 
 class Connection:
@@ -49,11 +49,11 @@ class Connection:
         else:
             if not "initial_catalog" or not "data_source":
                 raise ValueError(
-                    f"initial_catalog and data_source must be specificed if not passing a connection string"
+                    "initial_catalog and data_source must be specificed if not passing a connection string"
                 )
             self._connection_string = f"Provider=MSOLAP;Persist Security Info=True;Initial Catalog={initial_catalog};Data Source={data_source};Timeout={timeout};UID={uid};Password={password}"
             if effective_user_name:
-                self._connection_string += f"EffectiveUserName={effective_user_name};"
+                self._connection_string += f";EffectiveUserName={effective_user_name};"
             for key, value in kwargs.items():
                 self._connection_string += f"{key}={value};"
 
