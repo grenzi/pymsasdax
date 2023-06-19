@@ -86,6 +86,8 @@ with dax.Connection(
 
 ## Version History
 
+* 2023.1020
+  * fix timeout not being honored as CommandTimeout
 * 2023.1018
   * fix bug using effective_user_name or kwargs
 * ~~2023.1017~~
@@ -108,7 +110,7 @@ Yes. There aren't any. Feel free to submit a PR.
 
 This might not be right but if you ever go to update pypi - 
 ```
-bumpver update --minor
+bumpver update --dry --set-version="2023.1020"
 pip-compile pyproject.toml
 python -m pip install -e . 
 #test

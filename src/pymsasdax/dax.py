@@ -16,7 +16,7 @@ class Connection:
     tidy_map_function (function): A function to tidy column names. Default is to use the internal one, which leaves capitalization alone, replaces spaces with underscores, and removes square brackets.
     timeout (int): Timeout period (in seconds) for running queries. Default is 30.
     conn_str (str): Optional connection string for the connection.
-    **kwargs: Additional keyword value pairs, will be added to the connection string. 
+    **kwargs: Additional keyword value pairs, will be added to the connection string.
 
     Raises:
     ValueError: If initial_catalog and data_source are not specified when conn_str is not passed.
@@ -30,6 +30,7 @@ class Connection:
 
     Returns: Nothing
     """
+
     def __init__(
         self,
         initial_catalog=None,
@@ -41,7 +42,7 @@ class Connection:
         tidy_map_function=None,
         timeout=30,
         conn_str=None,
-        **kwargs
+        **kwargs,
     ):
         """Initializes the Connection object."""
         if conn_str is not None:
@@ -58,6 +59,7 @@ class Connection:
                 self._connection_string += f"{key}={value};"
 
         self._connection = None
+        self._timeout = timeout
         self._tidy_column_names = tidy_column_names
         self._tidy_map_function = tidy_map_function
         clr.AddReference("System.Data")
@@ -138,6 +140,7 @@ class Connection:
 
         command = self._connection.CreateCommand()
         command.CommandText = daxcmd
+        command.CommandTimeout = self._timeout
         reader = command.ExecuteReader()
         schema_table = reader.GetSchemaTable()
 
